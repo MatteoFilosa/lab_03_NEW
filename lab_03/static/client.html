@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang ="en">
+  <head>
+    <title>Twidder</title>
+    <meta charset="UTF-8">
+    <link href = "static/client.css" type = "text/css" rel="stylesheet">
+    <script src = "static/client.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+       $(document).ready(function(){
+           $('form').submit(function(event){
+               ws.send($('#data').val());
+               return false;
+           });
+           if ("WebSocket" in window) {
+               ws = new WebSocket("ws://" + document.domain + ":8080/api");
+               ws.onmessage = function (msg) {
+                   $("#log").append("<p>"+msg.data+"</p>")
+               };
+           } else {
+               alert("WebSocket not supported");
+           }
+       });
+   </script>
+    <script type = "text/view" id ="welcomeview">
+
+
+      <div class = "welcome_div">
+        <div class ="image">
+          <img src="static/wimage.png" alt="welcome_image" style="width:340px;height:400px;">
+        </div>
+          <form name="login" id="login" class="form-horizontal" method ="" onsubmit="validateLogin(this);return false;">
+              <div class ="divSignIn">
+                  <label for "username">Email </label> <input type="text" id="username" name="username">
+                  <label for "password">Password </label><input type="password" id="password" name="password">
+                  <input type="submit" id="submitSignIn" value="login">
+                  <span id="passwordHelpBlock" class="help-block"><a href="{{url_for('.forgot')}}">Forgot Password?</a></span>
+              </div>
+            </form>
+          <form name ="signUp" id="signUp" class= "form-horizontal" onsubmit="validateSignUp(this);return false;">
+              <div class ="divSignUp">
+                  <h3 align ="center"> Sign Up Here </h3>
+                  <label for "firstName">First Name</label><input type="text" id="firstName" name="firstName">
+                  <label for "familyName">Family name</label><input type="text" id="familyName" name="familyName">
+                  <label for "gender">Gender</label><select name="gender" id="gender" align="right">
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                        </select>
+                  <label for "city">City</label><input type="text" id="city" name="city">
+                  <label for "country">Country</label><input type="text" id="country" name="country">
+                  <label for "username">Email</label><input type="text" id="username" name="username">
+                  <label for "password">Password</label><input type="password" id="password" name="passsword">
+                  <label for "rPassword">Repeat PSW</label><input type="password" id="rPassword" name="rPassword">
+
+                  <input type="submit" id="submitSignUp" value="SignUp">
+              </div>
+
+          </form>
+              <div class="log" id="log"> </div>
+
+              <a href="/oauthlogin" onclick="return theFunction();">Sign in with Google!</a>
+
+              <script type="text/javascript">
+                function theFunction () {
+                  document.getElementById("welcome").innerHTML = document.getElementById("profileview").textContent;
+                  // return true or false, depending on whether you want to allow the `href` property to follow through or not
+                }
+                </script>
+
+
+
+      </div>
+
+
+    </script>
+
+    <script type = "text/view" id ="profileview">
+    <!-- Tab links -->
+      <div class="tab">
+          <button class="tablinks" onclick="openTab(event, 'Home')">Home</button>
+          <button class="tablinks" onclick="openTab(event, 'Browse')">Browse</button>
+          <button class="tablinks" onclick="openTab(event, 'Account')">Account</button>
+      </div>
+
+      <!-- Tab content -->
+      <div id="Home" class="tabcontent" , style="display:block">
+        <h2>Home</h2>
+        <button class="infos" onclick="loadInfos(this);">Load Infos</button>
+
+        Post message:
+        <textarea id="messages" name="messages" rows="4" cols="50">
+        </textarea>
+
+          <button class="infos" onclick="validateMessage(this);">Post Message</button>
+
+
+        <div id="infos">
+        </div>
+
+        <button class="infos" onclick="validateGetMessages();">Refresh</button>
+        <div id="messagesWall">
+
+        </div>
+
+        <div id ="logB">
+        </div>
+        <span onclick="this.parentElement.style.display='none'">[x]</span>
+      </div>
+
+      <div id="Browse" class="tabcontent" style="display:none">
+        <h2>Browse</h2>
+        Insert user<input type="text" id="insertUser" name="insertUser">
+        <button class="insertUser" onclick="validateGetUserDetails();">Confirm</button>
+
+        <div id="result" style="display:none">
+            <button class="infos" onclick="loadInfosBrowse();">Load Infos</button>
+
+        Post message:
+          <textarea id="messagesBrowse" name="messagesBrowse" rows="4" cols="50">
+          </textarea>
+            <button class="infos" onclick="validatePostMessageBrowse(this);">Post Message to this user</button>
+
+          <div id="infosBrowse">
+          </div>
+
+          <button class="infos" onclick="validateGetMessagesBrowse(this);">Get this user Messages</button>
+          <div id="messagesWallBrowse">
+
+          </div>
+      </div>
+
+      <div id="selectedUserMail">
+      </div>
+
+      <div id ="logC">
+      </div>
+      <span onclick="this.parentElement.style.display='none'">[x]</span>
+      </div>
+
+      <div id="Account" class="tabcontent" style="display:none">
+        <h2>Account</h2>
+
+        <form name ="changePsw" id="changePsw" onsubmit="pswCheck();return false;">
+          Old password<input type="password" id="oldPassword" name="oldPassword">
+          New password<input type="password" id="password" name="password">
+          Repeat new password<input type="password" id="rPassword" name="rPassword">
+        <input type="submit" id="changePsw" value="Change Password">
+        </form>
+          <button onclick="validateSignOut(this);">Sign Out</button>
+          <span onclick="this.parentElement.style.display='none'">[x]</span>
+      </div>
+
+      <div id ="logA">
+      </div>
+    </script>
+
+
+  </head>
+
+    <body>
+      <div id= "welcome">
+      </div>
+      <div id ="token" style="display: none;">
+      </div>
+      <div id ="emailNow" style ="display: none;">
+    </div>
+
+
+    </body>
+
+
+  </html>
