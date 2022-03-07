@@ -1,7 +1,5 @@
 from flask import Flask, jsonify, request, render_template, session, redirect, url_for
 from engineio.async_drivers import gevent
-from authlib.integrations.flask_client import OAuth
-from forms import ForgotForm
 #from auth_decorator import login_required
 from datetime import timedelta
 from flask_socketio import SocketIO, send, emit
