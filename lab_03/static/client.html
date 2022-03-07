@@ -34,7 +34,7 @@
                   <label for "username">Email </label> <input type="text" id="username" name="username">
                   <label for "password">Password </label><input type="password" id="password" name="password">
                   <input type="submit" id="submitSignIn" value="login">
-                  <span id="passwordHelpBlock" class="help-block"><a href="{{url_for('.forgot')}}">Forgot Password?</a></span>
+
               </div>
             </form>
           <form name ="signUp" id="signUp" class= "form-horizontal" onsubmit="validateSignUp(this);return false;">
@@ -58,15 +58,7 @@
           </form>
               <div class="log" id="log"> </div>
 
-              <a href="/oauthlogin" onclick="return theFunction();">Sign in with Google!</a>
-
-              <script type="text/javascript">
-                function theFunction () {
-                  document.getElementById("welcome").innerHTML = document.getElementById("profileview").textContent;
-                  // return true or false, depending on whether you want to allow the `href` property to follow through or not
-                }
-                </script>
-
+    
 
 
       </div>
