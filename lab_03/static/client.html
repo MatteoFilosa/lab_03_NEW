@@ -5,23 +5,13 @@
     <meta charset="UTF-8">
     <link href = "static/client.css" type = "text/css" rel="stylesheet">
     <script src = "static/client.js"></script>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf-8">
-       $(document).ready(function(){
-           $('form').submit(function(event){
-               ws.send($('#data').val());
-               return false;
-           });
-           if ("WebSocket" in window) {
-               ws = new WebSocket("ws://" + document.domain + ":8080/api");
-               ws.onmessage = function (msg) {
-                   $("#log").append("<p>"+msg.data+"</p>")
-               };
-           } else {
-               alert("WebSocket not supported");
-           }
-       });
-   </script>
+      var socket = io();
+      socket.on('connect', function() {
+          socket.emit('my event', {data: 'I\'m connected!'});
+        });
+    </script>
     <script type = "text/view" id ="welcomeview">
 
 
@@ -58,7 +48,7 @@
           </form>
               <div class="log" id="log"> </div>
 
-    
+
 
 
       </div>

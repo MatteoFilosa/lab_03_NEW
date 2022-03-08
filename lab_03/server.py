@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, render_template, session, redirect, url_for
 from engineio.async_drivers import gevent
+from geventwebsocket import WebSocketServer, WebSocketApplication, Resource
 #from auth_decorator import login_required
 from datetime import timedelta
 from flask_socketio import SocketIO, send, emit
@@ -17,36 +18,24 @@ tokenDic = {
  }
 
 
+#####WEB SOCKET PART
+
 app = Flask(__name__, template_folder='static')
 app.debug = True
 
-#Session config
-app.secret_key = 'random secret'
 
+class EchoApplication(WebSocketApplication):
+    def on_open(self):
+        print("Connection opened")
 
-#########END OAUTH###########
-#app.config['SECRET_KEY'] = 'secret!'
-#socketio = SocketIO(app)
+    def on_message(self, message):
+        self.ws.send(message)
 
-#if __name__ == '__main__':
-    #socketio.run(app)
+    def on_close(self, reason):
+        print(reason)
 
-#websocket flasksock->gunicorn
+        WebSocketServer(('127.0.0.1', 5000),Resource({'/': EchoApplication})).serve_forever()
 
-##if __name__ == '__main__':
-    #socket.run(app)
-@app.route('/api')
-def api():
-    if request.environ.get('wsgi.websocket'):
-        ws = request.environ['wsgi.websocket']
-        while True:
-            message = ws.wait()
-            ws.send(message)
-    return
-
-if __name__ == '__main__':
-    http_server = WSGIServer(('',8080), app, handler_class=WebSocketHandler)
-    http_server.serve_forever()
 
 @app.teardown_request
 def after_request(exception):
