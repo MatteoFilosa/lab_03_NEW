@@ -1,7 +1,13 @@
 window.onload = function(){
-document.getElementById("welcome").innerHTML = document.getElementById("welcomeview").textContent;
+  console.log("Attempting to open websocket connection");
+  document.getElementById("welcome").innerHTML = document.getElementById("welcomeview").textContent;
+
+  socket = io("ws://127.0.0.1:5000");
+  socket.on('connect', function() {
+  console.log("websocket connection established");
+  socket.emit('my event', {data: 'I\'m connected!'});
+});
 }
-//
 let tokenClient;
 let emailClient;
 let currentUser;

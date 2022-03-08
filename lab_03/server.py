@@ -1,11 +1,8 @@
 from flask import Flask, jsonify, request, render_template, session, redirect, url_for
 from engineio.async_drivers import gevent
-from geventwebsocket import WebSocketServer, WebSocketApplication, Resource
 #from auth_decorator import login_required
 from datetime import timedelta
 from flask_socketio import SocketIO, send, emit
-from geventwebsocket.handler import WebSocketHandler
-from gevent.pywsgi import WSGIServer
 import binascii
 import os
 import database_helper
@@ -22,19 +19,12 @@ tokenDic = {
 
 app = Flask(__name__, template_folder='static')
 app.debug = True
+socketio = SocketIO(app)
 
+@socketio.on('connect')
+def websocketConnection():
+    print("Client establishing websocket connection")
 
-class EchoApplication(WebSocketApplication):
-    def on_open(self):
-        print("Connection opened")
-
-    def on_message(self, message):
-        self.ws.send(message)
-
-    def on_close(self, reason):
-        print(reason)
-
-        WebSocketServer(('127.0.0.1', 5000),Resource({'/': EchoApplication})).serve_forever()
 
 
 @app.teardown_request
