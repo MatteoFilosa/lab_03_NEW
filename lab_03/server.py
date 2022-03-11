@@ -1,3 +1,4 @@
+import json
 from flask import Flask, jsonify, request, render_template, session, redirect, url_for
 from engineio.async_drivers import gevent
 #from auth_decorator import login_required
@@ -14,6 +15,7 @@ tokenDic = {
     "email": ""
  }
 
+webSocketConnection=[]
 
 #####WEB SOCKET PART
 
@@ -23,7 +25,20 @@ socketio = SocketIO(app)
 
 @socketio.on('connect')
 def websocketConnection():
-    print("Client establishing websocket connection")
+    #print("Client establishing websocket connection")
+    #socketio.send("signout")
+    #send('Hello', to=request.sid)
+    #print("hello there")
+    if webSocketConnection:
+        for e in webSocketConnection:
+            print("e[0] is: ", e[0])
+            print("email is: ", tokenDic["email"])
+            print("Socket id is: ", request.sid)
+            if(e[1]==tokenDic["email"]):
+                webSocketConnection.remove(e)
+                socketio.send("signout", to=e[0])
+
+    webSocketConnection.append((request.sid, tokenDic["email"], tokenDic["token"]))
 
 
 
@@ -63,16 +78,22 @@ def sign_up():
 @app.route('/user/signin', methods = ['POST'])
 def sign_in():
 
+    
+    
     json = request.get_json()
-    if "email" in json and "password" in json:
+    if json['email'] == tokenDic["email"]:
+        return render_template('client.html')
+    
+    elif "email" in json and "password" in json:
         if len(json['email']) < 30 and len(json['password']) < 30:
             result = database_helper.get_password(json['email'], json['password'])
             if result == True:
-
                 token = binascii.hexlify(os.urandom(20)).decode()
                 tokenDic["token"] = token
                 tokenDic["email"] = json['email']
-                print(tokenDic)
+                
+                print(webSocketConnection)
+               
                 database_helper.send_token(token)
                 #jsonify token
                 return jsonify({"token" : token}), 200
@@ -83,26 +104,14 @@ def sign_in():
     else:
         return "{}", 400
 
-@app.route('/user/signout', methods = ['POST'])
-def sign_out():
-
-#header token
-    json = request.headers.get("token")
-    if json==tokenDic['token'] and tokenDic['email']!="":
-        tokenDic['token'] = ""
-        tokenDic['email'] = ""
-        return "{}", 200
-    else:
-        return "{}", 401
-
 
 @app.route('/user/changepassword', methods = ['PUT'])
 def change_password():
 
     json = request.get_json()
-    if "token" in json and "password" in json and "newpassword" in json:
-        if len(json['password']) < 30 and len(json['newpassword']) < 30 and json['token']==tokenDic['token']:
-            result = database_helper.new_password(json["token"], json['password'], json['newpassword'])
+    if "password" in json and "newpassword" in json:
+        if len(json['password']) < 30 and len(json['newpassword']) < 30:
+            result = database_helper.new_password(tokenDic["token"], json['password'], json['newpassword'])
             if result == True:
                 return "{}", 201
             else:
@@ -117,9 +126,10 @@ def change_password():
 @app.route('/user/postmessage', methods = ['PUT'])
 def post_message():
 
+    
     json = request.get_json(force = True)
     print(json)
-    print("ok")
+    
     result = database_helper.message_help(tokenDic['token'], json['message'], json['email'])
     if result == True:
         return "{}", 201
@@ -159,7 +169,8 @@ def get_user_messages_by_token():
 
     result = database_helper.retrieve_messages_token(tokenDic['token'])
     if result != False:
-        return jsonify({"result" : result}), 200
+        #json_result = json.dumps(result, separators =(',', ':'))
+        return jsonify({"messages" : result}), 200
     else:
         return "{}", 404
 

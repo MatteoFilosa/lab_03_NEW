@@ -83,7 +83,7 @@ def message_help(token, message, email):
     rows = cursor.fetchall()
     cursor.close()
     if rows: #user exists
-        get_db().execute("insert into messages values(?, ?)", [message, email])
+        get_db().execute("insert into messages values(?, ?, ?)", [message, email, loggedInUser["email"]])
         get_db().commit()
         print(message)
         return True
@@ -116,7 +116,7 @@ def retrieve_data_email(token, email):
 def retrieve_messages_token(token):
 
     email = token_to_email(token)
-    cursor = get_db().execute("select * from messages where email = ?", [email])
+    cursor = get_db().execute("select message, writer from messages where email = ?", [email])
     rows = cursor.fetchall()
     cursor.close()
     print(rows)
@@ -128,7 +128,7 @@ def retrieve_messages_token(token):
 def retrieve_messages_email(token, email):
 
 
-    cursor = get_db().execute("select * from messages where email = ?", [email])
+    cursor = get_db().execute("select message, writer from messages where email = ?", [email])
     rows = cursor.fetchall()
     cursor.close()
     print(rows)

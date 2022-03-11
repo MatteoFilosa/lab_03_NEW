@@ -2,11 +2,7 @@ window.onload = function(){
   console.log("Attempting to open websocket connection");
   document.getElementById("welcome").innerHTML = document.getElementById("welcomeview").textContent;
 
-  socket = io("ws://127.0.0.1:5000");
-  socket.on('connect', function() {
-  console.log("websocket connection established");
-  socket.emit('my event', {data: 'I\'m connected!'});
-});
+  
 }
 let tokenClient;
 let emailClient;
@@ -36,7 +32,6 @@ function validateLogin() {
   }
   /*
   const socket = new WebSocket('ws://127.0.0.1:5000');
-
   socket.addEventListener('open', function (event) {
     socket.send("Hello Server! We're in sign in now.");
   });
@@ -52,9 +47,24 @@ function validateLogin() {
   request.onreadystatechange = function(){
     if (this.readyState == 4){
       if (this.status == 200){
+        socket = io("ws://127.0.0.1:5000");
+        socket.on('connect', function() {
+          console.log("websocket connection established");
+
+        });
+        
+        socket.addEventListener('message', function (event) {
+          console.log("WebSocket message received:", event);
+          if (event == "signout") {
+            validateSignOut();
+            
+          }
+        });
+
+
         document.getElementById("log").innerHTML = "<h3>Correctly signed in!</h3>";
-        let arr = JSON.parse(request.responseText)
-        tokenClient = arr.token;
+        //let arr = JSON.parse(request.responseText)
+        //tokenClient = arr.token;
         emailClient = email;
         //currentUser = {socket, tokenClient, email};
         console.log(currentUser);
@@ -76,7 +86,6 @@ function validateLogin() {
   token = a.data;
   console.log(token);
   if(token != null){
-
     document.getElementById("welcome").innerHTML = document.getElementById("profileview").textContent;
     document.getElementById("token").innerHTML = token;
     document.getElementById("emailNow").textContent = email;
