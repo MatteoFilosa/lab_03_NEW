@@ -60,10 +60,6 @@ function validateLogin() {
         let arr = JSON.parse(request.responseText)
         tokenClient = arr.token;
         emailClient = email;
-        //currentUser = {socket, tokenClient, email};
-        console.log(currentUser);
-        //document.getElementById("token").innerHTML = arr.token;
-        //console.log(arr.token);
         document.getElementById("welcome").innerHTML = document.getElementById("profileview").textContent;
       }else if (request.status == 400){
         document.getElementById("log").innerHTML = "<h3>Bad request!</h3>";
