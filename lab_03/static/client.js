@@ -30,12 +30,6 @@ function validateLogin() {
     document.getElementById('log').innerHTML = "Password cannot be shorter than 5 characters.";
     return false;
   }
-  /*
-  const socket = new WebSocket('ws://127.0.0.1:5000');
-  socket.addEventListener('open', function (event) {
-    socket.send("Hello Server! We're in sign in now.");
-  });
-  */
 
   let user = {"email" : email, "password" : password}
   let request = new XMLHttpRequest();
@@ -63,8 +57,8 @@ function validateLogin() {
 
 
         document.getElementById("log").innerHTML = "<h3>Correctly signed in!</h3>";
-        //let arr = JSON.parse(request.responseText)
-        //tokenClient = arr.token;
+        let arr = JSON.parse(request.responseText)
+        tokenClient = arr.token;
         emailClient = email;
         //currentUser = {socket, tokenClient, email};
         console.log(currentUser);
