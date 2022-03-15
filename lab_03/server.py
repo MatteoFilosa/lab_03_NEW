@@ -34,13 +34,13 @@ def websocketConnection():
             print("e[0] is: ", e[0])
             print("email is: ", tokenDic["email"])
             print("Socket id is: ", request.sid)
-            if(e[1]==tokenDic["email"]):
+            if(e[1]==tokenDic["email"] and e[1] == tokenDic["token"]): #different token -> logout
                 webSocketConnection.remove(e)
                 socketio.send("signout", to=e[0])
 
     webSocketConnection.append((request.sid, tokenDic["email"], tokenDic["token"]))
 
-
+#token check
 
 @app.teardown_request
 def after_request(exception):
@@ -81,10 +81,7 @@ def sign_in():
     
     
     json = request.get_json()
-    if json['email'] == tokenDic["email"]:
-        return render_template('client.html')
-    
-    elif "email" in json and "password" in json:
+    if "email" in json and "password" in json:
         if len(json['email']) < 30 and len(json['password']) < 30:
             result = database_helper.get_password(json['email'], json['password'])
             if result == True:

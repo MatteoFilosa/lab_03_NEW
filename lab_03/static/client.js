@@ -1,12 +1,27 @@
-window.onload = function(){
-  console.log("Attempting to open websocket connection");
-  document.getElementById("welcome").innerHTML = document.getElementById("welcomeview").textContent;
 
+
+window.onload = function(){
+  //check if we have a token or not in stoerage, if we already have, we 're logged in. If we're logged in, we want to create
+  //a websocket connection. When  you refresh, you should still be signed in
+  if(sessionStorage.getItem("token") == null){
+    document.getElementById("welcome").innerHTML = document.getElementById("welcomeview").textContent;
+  }
+  else{
+    document.getElementById("welcome").innerHTML = document.getElementById("profileview").textContent;
+    socket = io("ws://127.0.0.1:5000");
+        socket.on('connect', function() {
+          console.log("websocket connection established");
+        });
+        validateGetMessages();
+  }
   
 }
-let tokenClient;
-let emailClient;
-let currentUser;
+
+window.onunload = () => {
+  // Clear the local storage
+  locastorage.clear()
+}
+
 function validateLogin() {
 
   let email = document.forms["login"]["username"].value;
@@ -58,31 +73,19 @@ function validateLogin() {
 
         document.getElementById("log").innerHTML = "<h3>Correctly signed in!</h3>";
         let arr = JSON.parse(request.responseText)
-        tokenClient = arr.token;
-        emailClient = email;
+        sessionStorage.setItem("email", email);
+        sessionStorage.setItem("token", arr.token);
+        
         document.getElementById("welcome").innerHTML = document.getElementById("profileview").textContent;
       }else if (request.status == 400){
         document.getElementById("log").innerHTML = "<h3>Bad request!</h3>";
-      }else if (request.status == 500){
+      }else if (request.status == 404){
         document.getElementById("log").innerHTML = "<h3>Wrong username or password!</h3>";
       }
     }
   }
 
   request.send(JSON.stringify(user));
-
-/*
-  document.getElementById('log').innerHTML = a.message;
-  token = a.data;
-  console.log(token);
-  if(token != null){
-    document.getElementById("welcome").innerHTML = document.getElementById("profileview").textContent;
-    document.getElementById("token").innerHTML = token;
-    document.getElementById("emailNow").textContent = email;
-    validateGetMessages();
-  }
-  */
-
   validateGetMessages();
 }
 
@@ -196,9 +199,9 @@ function pswCheck(){
   let pswConfirm = document.forms["changePsw"]["rPassword"].value;
   //let tokendiv = document.getElementById("token");
   //let token = tokendiv.textContent;
+  
 
-
-  let dataObject = {"token" : tokenClient, "password" : oldPassword, "newpassword" : newpassword}
+  let dataObject = {"token" : sessionStorage.getItem("token"), "password" : oldPassword, "newpassword" : newpassword}
   console.log(dataObject);
 
   if(newpassword != pswConfirm || newpassword == "" || pswConfirm ==""){
@@ -227,15 +230,15 @@ function pswCheck(){
 }
 
 function validateSignOut(){
-  tokenClient = '';
+  locastorage.clear();
   document.getElementById("welcome").innerHTML = document.getElementById("welcomeview").textContent;
-
+  
 }
 
 function loadInfos(){
   let result = [];
   let request = new XMLHttpRequest();
-  let dataObject = {"token" : tokenClient}
+  let dataObject = {"token" : sessionStorage.getItem("token")}
   request.open("GET", "/user/getuserdatabytoken", true);
 
 
@@ -251,7 +254,7 @@ function loadInfos(){
         document.getElementById("infos").innerHTML = output;
       }else if (request.status == 400){
         document.getElementById("logB").innerHTML = "<h3>Bad request!</h3>";
-      }else if (request.status == 500){
+      }else if (request.status == 404){
         document.getElementById("logB").innerHTML = "<h3>User not found!</h3>";
       }
     }
@@ -271,7 +274,7 @@ function validateMessage(){
       document.getElementById("logA").innerHTML = "<h3>Very big message! Try something < 150 characters!</h3>";
       return false;
     }
-    let dataObject = {"token" : tokenClient, "message" : content, "email" : emailClient}
+    let dataObject = {"token" : sessionStorage.getItem("token"), "message" : content, "email" : sessionStorage.getItem("email")}
     console.log(dataObject);
     let request = new XMLHttpRequest();
     request.open("PUT", "/user/postmessage", true);
@@ -290,7 +293,7 @@ function validateMessage(){
     }
     request.send(JSON.stringify(dataObject));
 
-    document.getElementById('messagesWall').innerHTML += content + " : " + emailClient;
+    document.getElementById('messagesWall').innerHTML += content + " : " + sessionStorage.getItem("email");
 }
 
 function validateGetMessages(){
@@ -307,7 +310,7 @@ function validateGetMessages(){
         document.getElementById("messagesWall").innerHTML = result;
       }else if (request.status == 400){
         document.getElementById("logB").innerHTML = "<h3>Bad request!</h3>";
-      }else if (request.status == 500){
+      }else if (request.status == 404){
         document.getElementById("logB").innerHTML = "<h3>User not found!</h3>";
       }
     }
@@ -332,7 +335,7 @@ function validateGetUserDetails(){
     if (this.readyState == 4){
       if (this.status == 200){
         targetDiv.style.display = "block";
-      }else if (request.status == 500){
+      }else if (request.status == 404){
         document.getElementById("logC").innerHTML = "<h3>User not found!</h3>";
       }
     }
@@ -359,7 +362,7 @@ function loadInfosBrowse(){
             output = output + "<h3>Email: " +c.email+ ", Firstname: " + c.firstname  + ", Familyname: " +c.familyname + ", Gender: " +c.gender + ", City: " +c.city + ", Country: " +c.country + "</h3>"
         });
         document.getElementById("infosBrowse").innerHTML = output;
-      }else if (request.status == 500){
+      }else if (request.status == 404){
         document.getElementById("logC").innerHTML = "<h3>User not found!</h3>";
       }else if (request.status == 400){
         document.getElementById("logC").innerHTML = "<h3>Bad request!</h3>";
@@ -384,7 +387,7 @@ function validatePostMessageBrowse(){
     document.getElementById("logA").innerHTML = "<h3>Very big message! Try something < 150 characters!</h3>";
     return false;
   }
-  let dataObject = {"token" : tokenClient, "message" : content, "email" : email}
+  let dataObject = {"token" : sessionStorage.getItem("token"), "message" : content, "email" : email}
   console.log(dataObject);
   let request = new XMLHttpRequest();
   request.open("PUT", "/user/postmessage", true);
@@ -403,7 +406,7 @@ function validatePostMessageBrowse(){
   }
   request.send(JSON.stringify(dataObject));
 
-  document.getElementById('messagesWallBrowse').innerHTML += content + " : " + emailClient;
+  document.getElementById('messagesWallBrowse').innerHTML += content + " : " + sessionStorage.getItem("token");
 }
 
 
@@ -420,7 +423,7 @@ function validateGetMessagesBrowse(){
         document.getElementById("messagesWallBrowse").innerHTML = result;
       }else if (request.status == 400){
         document.getElementById("logB").innerHTML = "<h3>Bad request!</h3>";
-      }else if (request.status == 500){
+      }else if (request.status == 404){
         document.getElementById("logB").innerHTML = "<h3>User not found!</h3>";
       }
     }
