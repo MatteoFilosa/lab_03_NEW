@@ -230,7 +230,7 @@ function pswCheck(){
 }
 
 function validateSignOut(){
-  locastorage.clear();
+  
   document.getElementById("welcome").innerHTML = document.getElementById("welcomeview").textContent;
   
 }

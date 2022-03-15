@@ -34,7 +34,8 @@ def websocketConnection():
             print("e[0] is: ", e[0])
             print("email is: ", tokenDic["email"])
             print("Socket id is: ", request.sid)
-            if(e[1]==tokenDic["email"] and e[1] == tokenDic["token"]): #different token -> logout
+            if(e[1]==tokenDic["email"]): #different token -> logout
+                print("I'm HERE")
                 webSocketConnection.remove(e)
                 socketio.send("signout", to=e[0])
 
