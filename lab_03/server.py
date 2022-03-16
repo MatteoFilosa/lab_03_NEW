@@ -178,7 +178,7 @@ def get_user_messages_by_email(email):
 
     rows = database_helper.retrieve_messages_email(tokenDic['token'], email)
     if rows != False:
-        return jsonify({"messages" : rows}), 200
+        return jsonify({"message" : rows}), 200
     else:
         return "{}", 500
 

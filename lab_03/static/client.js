@@ -300,19 +300,16 @@ function validateGetMessages(){
 
 
   let request = new XMLHttpRequest();
-
   request.open("GET", "/user/getusermessagesbytoken", true);
   request.onreadystatechange = function(){
     if (this.readyState == 4){
       if (this.status == 200){
         result = JSON.parse(request.responseText)["message"];
-        console.log("LINE 309:"+ result);
         for(var i=0; i<result.length; i++){
           document.getElementById("messagesWall").innerHTML += "<hr>" + "Message:" + result[i][0] + "<br>" + "Writer:" + result[i][1] + "<br>";
           console.log("Message:" + result[i][0]);
         }
-        console.log("LINE 313:" + result);
-        //document.getElementById("messagesWall").innerHTML = result;
+  
       }else if (request.status == 400){
         document.getElementById("logB").innerHTML = "<h3>Bad request!</h3>";
       }else if (request.status == 404){
@@ -423,10 +420,13 @@ function validateGetMessagesBrowse(){
   request.onreadystatechange = function(){
     if (this.readyState == 4){
       if (this.status == 200){
-        result = JSON.stringify(request.responseText);
-        console.log(result);
-        document.getElementById("messagesWallBrowse").innerHTML = result;
-      }else if (request.status == 400){
+        result = JSON.parse(request.responseText)["message"];
+        console.log("result");
+        for(var i=0; i<result.length; i++){
+          document.getElementById("messagesWallBrowse").innerHTML += "<hr>" + "Message:" + result[i][0] + "<br>" + "Writer:" + result[i][1] + "<br>";
+          console.log("Message:" + result[i][0]);
+        }
+      } else if (request.status == 400){
         document.getElementById("logB").innerHTML = "<h3>Bad request!</h3>";
       }else if (request.status == 404){
         document.getElementById("logB").innerHTML = "<h3>User not found!</h3>";
