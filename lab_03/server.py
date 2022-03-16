@@ -49,7 +49,7 @@ def after_request(exception):
 
 @app.route('/')
 def index():
-    return render_template('client.html') #render_template? or app.send_static_file
+    return app.send_static_file('client.html') #render_template? or app.send_static_file
 
 
 #@socketio.on('message')
@@ -167,8 +167,8 @@ def get_user_messages_by_token():
 
     result = database_helper.retrieve_messages_token(tokenDic['token'])
     if result != False:
-        #json_result = json.dumps(result, separators =(',', ':'))
-        return jsonify({"messages" : result}), 200
+        print(result)
+        return jsonify({"message" : result}), 200
     else:
         return "{}", 404
 
